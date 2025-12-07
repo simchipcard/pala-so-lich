@@ -1,0 +1,8 @@
+{
+  "name": "SmartHome Wellness",
+  "description": "A human-centric smart home application focusing on wellness, energy saving, and reliable device management with AI-powered support.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
