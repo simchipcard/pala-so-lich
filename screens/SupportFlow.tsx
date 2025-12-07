@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Upload, Clock, CheckCircle, AlertTriangle, Mail } from 'lucide-react';
+import { ArrowLeft, Upload, Clock, CheckCircle, AlertTriangle, Mail, Star, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button, Card } from '../components/UIComponents';
 import { SupportView, Ticket } from '../types';
 import { analyzeComplaint, AnalysisResult } from '../services/geminiService';
@@ -68,6 +68,14 @@ const SupportFlow: React.FC<SupportFlowProps> = ({ onBack }) => {
   const [pMonth, setPMonth] = useState('Oct');
   const [pTime, setPTime] = useState('10:00 AM');
 
+  // Review Modal State
+  const [reviewTicketId, setReviewTicketId] = useState<string | null>(null);
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+
+  // Ticket Expansion State (Multi-select)
+  const [expandedTicketIds, setExpandedTicketIds] = useState<string[]>([]);
+
   const availableDevices = ['Living Room AC', 'Smart Washer', 'Kitchen Fridge', 'Master Bedroom TV'];
   
   // Dynamic Issues Mapping
@@ -82,6 +90,12 @@ const SupportFlow: React.FC<SupportFlowProps> = ({ onBack }) => {
 
   const toggleIssue = (iss: string) => {
     setIssues(prev => prev.includes(iss) ? prev.filter(i => i !== iss) : [...prev, iss]);
+  };
+
+  const toggleTicket = (id: string) => {
+    setExpandedTicketIds(prev => 
+      prev.includes(id) ? prev.filter(ticketId => ticketId !== id) : [...prev, id]
+    );
   };
 
   // Reset issues when device changes
@@ -111,6 +125,12 @@ const SupportFlow: React.FC<SupportFlowProps> = ({ onBack }) => {
     };
     
     setTickets([newTicket, ...tickets]);
+  };
+
+  const openReviewModal = (ticketId: string) => {
+    setReviewTicketId(ticketId);
+    setRating(0);
+    setReviewText('');
   };
 
   // --- Views ---
@@ -150,36 +170,107 @@ const SupportFlow: React.FC<SupportFlowProps> = ({ onBack }) => {
 
   if (view === SupportView.STATUS) {
      return (
-       <div className="h-full flex flex-col pb-24">
+       <div className="h-full flex flex-col pb-24 relative">
          <div className="flex items-center gap-2 mb-6">
            <button onClick={() => setView(SupportView.MAIN)}><ArrowLeft className="text-gray-600" /></button>
            <h1 className="text-xl font-bold text-gray-800">My Tickets</h1>
          </div>
          <div className="space-y-4 overflow-y-auto">
-            {tickets.map(t => (
-              <Card key={t.id} className="border-l-4 border-l-primary">
-                <div className="flex justify-between mb-2">
-                  <span className="font-bold text-gray-800">{t.id}</span>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    t.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                  }`}>{t.status}</span>
-                </div>
-                <h4 className="text-sm font-medium text-gray-600 mb-1">{t.device}</h4>
-                <p className="text-sm text-gray-500 mb-2">{t.issue}</p>
-                {t.response && (
-                    <div className="bg-gray-50 p-2 rounded text-xs text-gray-600 italic">
-                        " {t.response} "
+            {tickets.map(t => {
+                const isExpanded = expandedTicketIds.includes(t.id);
+                return (
+                  <Card key={t.id} className="border-l-4 border-l-primary relative transition-all duration-300">
+                    <div 
+                        className="cursor-pointer"
+                        onClick={() => toggleTicket(t.id)}
+                    >
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <span className="font-bold text-gray-800 block">{t.id}</span>
+                                <span className="text-sm font-medium text-gray-600">{t.device}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className={`text-xs px-2 py-1 rounded-full ${
+                                    t.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                                }`}>{t.status}</span>
+                                {isExpanded ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+                            </div>
+                        </div>
                     </div>
-                )}
-                <div className="mt-2 text-xs text-gray-400 flex justify-between items-center">
-                    <span>{t.date}</span>
-                    <span className={t.priority === 'Severe' ? 'text-red-500 font-bold' : 'text-gray-400'}>
-                        {t.priority} Priority
-                    </span>
-                </div>
-              </Card>
-            ))}
+                    
+                    {isExpanded && (
+                        <div className="mt-4 pt-3 border-t border-gray-100 animate-fade-in">
+                            <p className="text-sm text-gray-500 mb-2"><span className="font-bold text-gray-700 text-xs uppercase mr-2">Issue:</span>{t.issue}</p>
+                            {t.response && (
+                                <div className="bg-gray-50 p-3 rounded-lg text-xs text-gray-600 italic mb-2 border border-gray-100">
+                                    " {t.response} "
+                                </div>
+                            )}
+                            <div className="mt-2 text-xs text-gray-400 flex items-center gap-1 mb-4">
+                                <Clock size={12} /> <span>{t.date}</span>
+                            </div>
+                            
+                            <button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                openReviewModal(t.id);
+                            }}
+                            className="w-full py-2 bg-gray-50 hover:bg-gray-100 text-primary text-xs font-bold rounded-lg transition-colors border border-gray-200 flex items-center justify-center gap-2"
+                            >
+                            <Star size={14} className="text-primary" /> Review Service
+                            </button>
+                        </div>
+                    )}
+                  </Card>
+                );
+            })}
          </div>
+
+         {/* Review Modal */}
+         {reviewTicketId && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-fade-in">
+                <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl relative">
+                    <button 
+                        onClick={() => setReviewTicketId(null)}
+                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 bg-gray-100 rounded-full p-1"
+                    >
+                        <X size={20} />
+                    </button>
+                    
+                    <h3 className="text-xl font-bold text-gray-800 mb-2 text-center">Rate Service</h3>
+                    <p className="text-gray-500 text-xs text-center mb-6">How was your experience with Ticket {reviewTicketId}?</p>
+                    
+                    {/* Stars */}
+                    <div className="flex justify-center gap-2 mb-6">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <button 
+                                key={star}
+                                onClick={() => setRating(star)}
+                                className="transition-transform active:scale-110"
+                            >
+                                <Star 
+                                    size={32} 
+                                    fill={star <= rating ? "#FBBF24" : "none"} 
+                                    className={star <= rating ? "text-yellow-400" : "text-gray-300"} 
+                                />
+                            </button>
+                        ))}
+                    </div>
+                    
+                    {/* Text Area */}
+                    <textarea 
+                        value={reviewText}
+                        onChange={(e) => setReviewText(e.target.value)}
+                        placeholder="Write your review here"
+                        className="w-full h-24 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none resize-none text-sm placeholder:italic placeholder:text-gray-400 text-gray-700 mb-4"
+                    />
+                    
+                    <Button onClick={() => setReviewTicketId(null)} fullWidth>
+                        Submit Review
+                    </Button>
+                </div>
+            </div>
+         )}
        </div>
      )
   }

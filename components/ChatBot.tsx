@@ -212,18 +212,16 @@ export const ChatBot: React.FC<ChatBotProps> = ({ isOpen, onClose, onOpen, scena
         </div>
       )}
 
-      {/* Floating Action Button */}
-      <button 
-        onClick={() => isOpen ? onClose() : onOpen()}
-        className={`fixed bottom-24 right-5 w-14 h-14 bg-white rounded-full shadow-lg hover:shadow-xl border border-gray-50 flex items-center justify-center z-50 hover:scale-105 active:scale-95 transition-all duration-300 group ${isOpen ? 'ring-4 ring-primary/20' : ''}`}
-      >
-        <div className="absolute inset-0 bg-blue-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-        {isOpen ? (
-            <X size={28} className="text-primary relative z-10" />
-        ) : (
-            <span className="text-primary font-bold text-2xl font-sans relative z-10 drop-shadow-sm">P</span>
-        )}
-      </button>
+      {/* Floating Action Button - Only show when closed */}
+      {!isOpen && (
+        <button 
+          onClick={onOpen}
+          className={`fixed bottom-24 right-5 w-14 h-14 bg-white rounded-full shadow-lg hover:shadow-xl border border-gray-50 flex items-center justify-center z-50 hover:scale-105 active:scale-95 transition-all duration-300 group`}
+        >
+          <div className="absolute inset-0 bg-blue-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+          <span className="text-primary font-bold text-2xl font-sans relative z-10 drop-shadow-sm">P</span>
+        </button>
+      )}
     </>
   );
 };

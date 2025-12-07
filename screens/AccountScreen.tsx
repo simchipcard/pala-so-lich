@@ -1,15 +1,131 @@
 
 import React, { useState, useRef } from 'react';
-import { User, Award, ShieldCheck, Headphones, Share2, ChevronRight, ChevronLeft, QrCode, ArrowLeft, Calendar, FileText, CheckCircle, CreditCard, Smartphone, Tv, Wind, Snowflake, Disc, Coins, Ticket, Sparkles, Gift, Phone, Percent, X, Play } from 'lucide-react';
+import { User, Award, ShieldCheck, Headphones, Share2, ChevronRight, ChevronLeft, QrCode, ArrowLeft, Calendar, FileText, CheckCircle, CreditCard, Smartphone, Tv, Wind, Snowflake, Disc, Coins, Ticket, Sparkles, Gift, Phone, Percent, X, Play, Camera, ChevronDown, Flag } from 'lucide-react';
 import { Card, Button } from '../components/UIComponents';
 import SupportFlow from './SupportFlow';
 
-type AccountView = 'MAIN' | 'SUPPORT' | 'WARRANTY' | 'COINS' | 'BENEFITS';
+type AccountView = 'MAIN' | 'SUPPORT' | 'WARRANTY' | 'COINS' | 'BENEFITS' | 'PROFILE';
 
 const AccountScreen: React.FC = () => {
   const [view, setView] = useState<AccountView>('MAIN');
   const [showRefQR, setShowRefQR] = useState(false);
   const [shareModal, setShareModal] = useState<'APPSTORE' | 'PLAYSTORE' | null>(null);
+
+  // --- PROFILE UPDATE VIEW ---
+  const ProfileUpdateView = () => {
+    return (
+      <div className="h-full flex flex-col pb-24 animate-fade-in bg-white">
+        <div className="flex items-center gap-2 mb-6">
+          <button onClick={() => setView('MAIN')}><ArrowLeft className="text-gray-600" /></button>
+          <h1 className="text-2xl font-bold text-gray-800">Update Profile</h1>
+        </div>
+
+        <div className="flex-1 overflow-y-auto pr-1">
+          {/* Avatar Section */}
+          <div className="flex flex-col items-center mb-8">
+             <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-4xl font-bold mb-3 border-4 border-white shadow-sm">
+               B
+             </div>
+             <button className="text-primary text-sm font-bold bg-blue-50 px-4 py-1.5 rounded-full hover:bg-blue-100 transition-colors">
+               Change
+             </button>
+          </div>
+
+          <div className="space-y-5">
+             {/* Names */}
+             <div className="space-y-1">
+               <label className="text-xs font-bold text-gray-500 uppercase">First Name*</label>
+               <input type="text" defaultValue="Bich" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:ring-2 focus:ring-primary outline-none" />
+             </div>
+
+             <div className="space-y-1">
+               <label className="text-xs font-bold text-gray-500 uppercase">Middle Name*</label>
+               <input type="text" placeholder="" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:ring-2 focus:ring-primary outline-none" />
+             </div>
+
+             <div className="space-y-1">
+               <label className="text-xs font-bold text-gray-500 uppercase">Last Name*</label>
+               <input type="text" defaultValue="Tran" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:ring-2 focus:ring-primary outline-none" />
+             </div>
+
+             {/* Contact */}
+             <div className="space-y-1">
+               <label className="text-xs font-bold text-gray-400 uppercase">Email Address <span className="normal-case font-normal">(optional)</span></label>
+               <input type="email" placeholder="" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:ring-2 focus:ring-primary outline-none" />
+             </div>
+
+             <div className="space-y-1">
+               <label className="text-xs font-bold text-gray-500 uppercase">Phone Number*</label>
+               <div className="flex gap-2">
+                 <div className="bg-gray-50 border border-gray-200 rounded-xl px-3 flex items-center gap-1 min-w-[90px]">
+                    <span className="text-lg">🇻🇳</span>
+                    <span className="text-sm font-bold text-gray-700">+84</span>
+                    <ChevronDown size={14} className="text-gray-400 ml-auto" />
+                 </div>
+                 <input type="tel" defaultValue="909938724" className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:ring-2 focus:ring-primary outline-none" />
+               </div>
+             </div>
+
+             <div className="space-y-1">
+               <label className="text-xs font-bold text-gray-500 uppercase">Birthday</label>
+               <div className="relative">
+                 <input type="text" defaultValue="12/05/1978" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:ring-2 focus:ring-primary outline-none" />
+                 <Calendar className="absolute right-3 top-3 text-gray-400 cursor-pointer hover:text-primary" size={20} />
+               </div>
+             </div>
+
+             {/* Address */}
+             <div className="pt-4 border-t border-gray-100">
+               <h3 className="font-bold text-gray-800 mb-4">Address Details</h3>
+               
+               <div className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase">Street Address*</label>
+                    <input type="text" defaultValue="150 Nguyen Tat Thanh" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase">Country*</label>
+                    <input type="text" defaultValue="Vietnam" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase">Province/City*</label>
+                    <input type="text" defaultValue="Ho Chi Minh" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase">Commune/Ward*</label>
+                    <input type="text" defaultValue="Binh Dong" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-400 uppercase">ZIP/Postcode <span className="normal-case font-normal">(optional)</span></label>
+                    <input type="text" placeholder="" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-800 focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
+               </div>
+             </div>
+
+             {/* Marketing */}
+             <label className="flex items-start gap-3 p-2 cursor-pointer mt-4">
+                <input type="checkbox" defaultChecked className="mt-1 w-5 h-5 text-primary rounded focus:ring-primary border-gray-300" />
+                <span className="text-xs text-gray-600 leading-relaxed">
+                  I agree to receive marketing communications such as promotions, offers and occasional products from Panasonic.
+                </span>
+             </label>
+
+             {/* Save Button */}
+             <button 
+               onClick={() => setView('MAIN')}
+               className="w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-sm shadow-lg shadow-gray-400/20 active:scale-95 transition-transform mt-4"
+             >
+               Save
+             </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // --- COINS / LOYALTY VIEW COMPONENT ---
   const CoinsView = () => {
@@ -376,6 +492,10 @@ const AccountScreen: React.FC = () => {
     return <BenefitsView />;
   }
 
+  if (view === 'PROFILE') {
+    return <ProfileUpdateView />;
+  }
+
   return (
     <div className="space-y-6 pb-24 animate-fade-in">
       {/* Profile Header */}
@@ -448,9 +568,12 @@ const AccountScreen: React.FC = () => {
             <ChevronRight size={16} className="text-gray-400" />
          </button>
 
-         <button className="w-full p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">
+         <button 
+            onClick={() => setView('PROFILE')}
+            className="w-full p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors"
+         >
             <div className="text-gray-500"><User size={20} /></div>
-            <span className="flex-1 text-left font-medium text-gray-800">Account Settings</span>
+            <span className="flex-1 text-left font-medium text-gray-800">Update Profile</span>
             <ChevronRight size={16} className="text-gray-400" />
          </button>
       </div>
